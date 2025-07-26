@@ -8,6 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -25,8 +26,11 @@ jobs:
 
       - name: Commit and push
         run: |
-          git config user.name "rss-bot"
-          git config user.email "rss-bot@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add feed.xml
           git commit -m "Update feed" || echo "No changes"
+          git remote set-url origin https://x-access-token:${GIT_AUTH_TOKEN}@github.com/${{ github.repository }}.git
           git push
+        env:
+          GIT_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
