@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 
 HEADERS = {"User-Agent": "Mozilla/5.0"}
 BASE_URL = "https://newalbumreleases.net/category/cat/"
-NUM_PAGES = 5  # 5 pages x 10 posts each = 50 posts
+NUM_PAGES = 5
 
 rss = ET.Element("rss", version="2.0")
 channel = ET.SubElement(rss, "channel")
@@ -17,12 +17,16 @@ for page in range(1, NUM_PAGES + 1):
     url = BASE_URL if page == 1 else f"{BASE_URL}?paged={page}"
     response = requests.get(url, headers=HEADERS)
     soup = BeautifulSoup(response.text, "html.parser")
-    posts = soup.select("div.post")
+
+    # Updated selector for posts
+    posts = soup.select("div#main div.post")
 
     for post in posts:
-        a_tag = post.select_one("h2 a")
+        h2 = post.find("h2")
+        a_tag = h2.find("a") if h2 else None
         if not a_tag:
             continue
+
         title = a_tag.text.strip()
         link = a_tag["href"]
         pub_date = datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S +0000")
